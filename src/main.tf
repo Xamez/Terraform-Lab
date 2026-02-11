@@ -25,11 +25,9 @@ resource "docker_container" "nginx-container" {
   }
 
   upload {
-    content = templatefile("${path.module}/index.html.tpl", { HOSTNAME = "${self.name}" })
+      content = templatefile("${path.module}/index.html.tpl", { 
+        HOSTNAME = "${var.container_name}-${count.index + 1}" }
+      )
     file = "/usr/share/nginx/html/index.html"
-  }
-
-  env = {
-    HOSTNAME = self.name
   }
 }

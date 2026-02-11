@@ -12,6 +12,7 @@ provider "docker" {
 }
 
 module "nginx" {
-  source          = "git::https://github.com/Xamez/Terraform-Lab.git//src"
+  # source          = "git::https://github.com/Xamez/Terraform-Lab.git//src"
+  source          = "../src"
   container_count = 1
 }
