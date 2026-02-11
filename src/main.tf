@@ -23,4 +23,13 @@ resource "docker_container" "nginx-container" {
     internal = 80
     external = var.container_ports + count.index
   }
+
+  upload {
+    content = templatefile("${path.module}/index.html.tpl", { HOSTNAME = "${self.name}" })
+    file = "/usr/share/nginx/html/index.html"
+  }
+
+  env = {
+    HOSTNAME = self.name
+  }
 }
