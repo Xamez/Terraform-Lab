@@ -12,6 +12,14 @@ provider "aws" {
 }
 
 module "aws-test-module" {
-  source          = "git::https://github.com/Xamez/Terraform-Lab.git//aws"
+  source        = "git::https://github.com/Xamez/Terraform-Lab.git//aws"
   instance_name = "VM Maxence - Module"
+}
+
+output "public-dns" {
+  value = module.aws-test-module.public-dns
+}
+
+output "vm-ip" {
+  value = module.aws-test-module.vm-ip
 }

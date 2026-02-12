@@ -8,12 +8,12 @@ terraform {
 }
 
 resource "aws_key_pair" "deploy-key" {
-  key_name   = "deploy-key"
+  key_name   = "deploy-key-maxence"
   public_key = file("${path.module}/.ssh/aws.pub")
 }
 
 resource "aws_security_group" "terraform-sg" {
-  name        = "lab-ssh-sg"
+  name        = "ssh-sg-maxence"
   vpc_id      = "vpc-083052666da04fb53"
 }
 
