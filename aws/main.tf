@@ -38,15 +38,44 @@ resource "aws_vpc_security_group_egress_rule" "allow_all_outbound" {
 }
 
 resource "aws_instance" "vm" {
-  ami                    = "ami-092c64119783c2f31"
-  instance_type          = "t3.micro"
-  subnet_id              = "subnet-0d2b7f8e860ab5e38"
+  ami                    = data.aws_ami.selected.id
+  instance_type          = var.instance_type
+  subnet_id              = data.aws_subnet.selected.id
   key_name               = aws_key_pair.deploy-key.key_name
   vpc_security_group_ids = [aws_security_group.terraform-sg.id]
 
   tags = {
-    Name = "VM Maxence"
+    Name = var.instance_name
   }
+}
+
+data "aws_ami" "selected" {
+  most_recent = true
+  owners      = ["amazon"]
+
+  filter {
+    name   = "name"
+    values = ["*al2023-ami-2023.*-kernel-6.12-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+  
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
+}
+
+data "aws_subnet" "selected" {
+  vpc_id = aws_security_group.terraform-sg.vpc_id
+  availability_zone = "eu-west-3c"
+}
+
+output "public-dns" {
+  value = aws_instance.vm.public_dns
 }
 
 output "vm-ip" {
