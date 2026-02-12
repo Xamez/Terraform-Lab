@@ -7,13 +7,9 @@ terraform {
   }
 }
 
-provider "aws" {
-  region = "eu-west-3"
-}
-
 resource "aws_key_pair" "deploy-key" {
   key_name   = "deploy-key"
-  public_key = file(".ssh/aws.pub")
+  public_key = file("${path.module}/.ssh/aws.pub")
 }
 
 resource "aws_security_group" "terraform-sg" {
