@@ -2,8 +2,12 @@ output "bastion_public_ip" {
   value = aws_instance.bastion.public_ip
 }
 
-output "ssh_connection_command" {
-  value = "ssh ec2-user@${aws_instance.bastion.public_ip}"
+output "bastion_instance_id" {
+  value = aws_instance.bastion.id
+}
+
+output "session_manager_command" {
+  value = "aws ssm start-session --target ${aws_instance.bastion.id} --region ${var.region}"
 }
 
 output "bastion_security_group_id" {

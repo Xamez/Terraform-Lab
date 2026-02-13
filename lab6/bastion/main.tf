@@ -4,14 +4,6 @@ resource "aws_security_group" "bastion" {
   vpc_id      = data.aws_vpc.lab.id
 }
 
-resource "aws_vpc_security_group_ingress_rule" "bastion_ssh" {
-  security_group_id = aws_security_group.bastion.id
-  ip_protocol       = "tcp"
-  from_port         = 22
-  to_port           = 22
-  cidr_ipv4         = var.allowed_ssh_cidr
-}
-
 resource "aws_vpc_security_group_egress_rule" "bastion_all_out" {
   security_group_id = aws_security_group.bastion.id
   ip_protocol       = "-1"
@@ -46,7 +38,8 @@ resource "aws_iam_role_policy" "ssm_read_db_params" {
         Effect = "Allow"
         Action = [
           "ssm:GetParameter",
-          "ssm:GetParameters"
+          "ssm:GetParameters",
+          "ssm:AmazonSSMManagedInstanceCore"
         ]
         Resource = "arn:aws:ssm:${var.region}:${data.aws_caller_identity.current.account_id}:parameter/lab6/db/*"
       }
@@ -54,20 +47,19 @@ resource "aws_iam_role_policy" "ssm_read_db_params" {
   })
 }
 
+resource "aws_iam_role_policy_attachment" "ssm_managed_instance_core" {
+  role       = aws_iam_role.bastion.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
 resource "aws_iam_instance_profile" "bastion" {
   name = "${var.name_prefix}-bastion-profile"
   role = aws_iam_role.bastion.name
 }
 
-resource "aws_key_pair" "bastion" {
-  key_name   = var.bastion_key_name
-  public_key = file("${path.module}/${var.bastion_public_key_path}")
-}
-
 resource "aws_instance" "bastion" {
   ami                    = data.aws_ami.amazon_linux_2.id
   instance_type          = "t3.micro"
-  key_name               = aws_key_pair.bastion.key_name
   subnet_id              = sort(data.aws_subnets.public.ids)[0]
   vpc_security_group_ids = [aws_security_group.bastion.id]
   iam_instance_profile   = aws_iam_instance_profile.bastion.name
